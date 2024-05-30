@@ -10,3 +10,5 @@ java --illegal-access=permit \
 --add-opens=java.base/java.io=ALL-UNNAMED \
 --add-opens=java.base/java.util=ALL-UNNAMED \
 -jar target/benchmark-queue-1.jar
+
+mvn package
