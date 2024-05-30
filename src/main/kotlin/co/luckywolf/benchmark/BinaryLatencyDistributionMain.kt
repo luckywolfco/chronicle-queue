@@ -109,7 +109,7 @@ import java.io.File
  * in: 50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 99.9997/99.9999 - worst was 0.20 / 0.22  0.22 / 0.27  0.28 / 0.49  1.0 / 1.8  41 / 69  98 / 164 - 2,300
  * co: 50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 99.9997/99.9999 - worst was 0.22 / 0.23  0.24 / 0.28  0.30 / 0.93  1.7 / 46  135 / 764  1,590 / 2,150 - 2,430
  */
-class LatencyDistributionMain {
+class BinaryLatencyDistributionMain {
     @Throws(InterruptedException::class)
     fun run(args: Array<String>?) {
         val blockSize = if (OS.is64Bit()
@@ -154,7 +154,7 @@ class LatencyDistributionMain {
                     lock = Affinity.acquireLock()
                 }
                 val pongTailer = queue.createTailer()
-                val pongReader = pongTailer.methodReader(Echo.ReadPong(histogramCo, histogramIn))
+                val pongReader = pongTailer.methodReader(Echo.ReadPongBinary(histogramCo, histogramIn))
 
                 var counter = 0
                 while (!Thread.currentThread().isInterrupted) {
@@ -186,8 +186,8 @@ class LatencyDistributionMain {
                     lock = Affinity.acquireLock()
                 }
                 val tailer = queue2.createTailer()
-                val pongWriter = queue2.acquireAppender().methodWriter(CommandQueueHandler.PongStatusHandler::class.java)
-                val pingReader = tailer.methodReader(Echo.ReadPingWritePong(pongWriter))
+                val pongWriter = queue2.acquireAppender().methodWriter(CommandQueueHandler.PongBinaryStatusHandler::class.java)
+                val pingReader = tailer.methodReader(Echo.ReadPingWritePongBinary(pongWriter))
 
                 var counter = 0
                 while (!Thread.currentThread().isInterrupted) {
@@ -212,18 +212,17 @@ class LatencyDistributionMain {
         val pingAppenderThread = Thread {
             var lock: AffinityLock? = null
             try {
-                    if (Jvm.getBoolean("enableAppenderAffinity") || !Jvm.getBoolean("disableAffinity")) {
+                if (Jvm.getBoolean("enableAppenderAffinity") || !Jvm.getBoolean("disableAffinity")) {
                     lock = Affinity.acquireLock()
                 }
 
-                val pingAppender: ExcerptAppender = queue.acquireAppender()
-                val pingWriter = pingAppender.methodWriter(CommandQueueHandler.PingStatusHandler::class.java)
+                val pingAppender: ExcerptAppender = queue.createAppender()
+                val pingWriter = pingAppender.methodWriter(CommandQueueHandler.PingBinaryStatusHandler::class.java)
 
                 var next = System.nanoTime()
                 val interval = (1000000000 / EchoBenchmarkMain.throughput).toLong()
                 val stackCount: Map<String, Int> = LinkedHashMap()
-                val bytes24: BytesStore<*, *> = BytesStore.nativeStoreFrom(ByteArray(EchoBenchmarkMain.size - 16))
-                val ping = Ping(Service.GATEWAY)
+                val ping = PingBinary(Service.GATEWAY)
                 for (i in -EchoBenchmarkMain.WARMUP until EchoBenchmarkMain.iterations) {
                     val s0 = System.nanoTime()
                     if (s0 < next) {
@@ -237,7 +236,6 @@ class LatencyDistributionMain {
                     pingWriter.ping(ping)
                     val time = System.nanoTime() - start
                     histogramWr.sample((start - next).toDouble())
-
                     next += interval
                     if (i % INTLOG_INTERVAL == 0) println("wrote $i")
                 }
@@ -287,7 +285,7 @@ class LatencyDistributionMain {
                         "-Dthroughput=" + EchoBenchmarkMain.throughput + " " +
                         "-Dinterations=" + EchoBenchmarkMain.iterations
             )
-            LatencyDistributionMain().run(args)
+            BinaryLatencyDistributionMain().run(args)
         }
     }
 }
