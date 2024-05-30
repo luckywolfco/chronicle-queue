@@ -104,7 +104,7 @@ public class JLatencyDistributionMain {
                                 histogramWr.reset();
                             }
 
-                            if (count % INTLOG_INTERVAL == 0) System.out.println("read  $count");
+                            if (count % INTLOG_INTERVAL == 0) System.out.println("read  "+count);
                         }
 
                     } catch (Exception e) {
@@ -133,7 +133,7 @@ public class JLatencyDistributionMain {
                     try {
                         if(pingReader.readOne()) {
                             long count = counter++;
-                            if (count % INTLOG_INTERVAL == 0) System.out.println("read write $count");
+                            if (count % INTLOG_INTERVAL == 0) System.out.println("read write "+count);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
