@@ -20,7 +20,7 @@ open class Command : SelfDescribingMarshallable() {
     @LongConversion(NanoTimestampLongConverter::class)
     var commandId: Long = 0
     @LongConversion(NanoTimestampLongConverter::class)
-    var traceId: Long = 0
+    public var traceId: Long = 0
     var version: Int = 1
     var origin = Service.UNDEFINED
 
