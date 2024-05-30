@@ -145,28 +145,6 @@ class LatencyDistributionMain {
         val histogramCo = Histogram()
         val histogramIn = Histogram()
         val histogramWr = Histogram()
-//        val pretoucher = Thread {
-//            val appender: ExcerptAppender = queue.acquireAppender()
-//            try {
-//                while (!Thread.currentThread().isInterrupted) {
-//                    appender.pretouch()
-//                    Jvm.pause(50)
-//                }
-//            } catch (e: Exception) {
-//                if (!appender.isClosed) e.printStackTrace()
-//            }
-//        }
-//        pretoucher.isDaemon = true
-//        pretoucher.start()
-
-//        val pingAppender: ExcerptAppender = queue.acquireAppender()
-//        val pingWriter = pingAppender.methodWriter(CommandQueueHandler.PingStatusHandler::class.java)
-//        val pongTailer = queue.createTailer()
-//        val pongReader = pongTailer.methodReader(Echo.ReadPong(histogramCo, histogramIn))
-        // two queues as most like in a different process.
-//        val tailer = queue2.createTailer()
-//        val pongWriter = queue2.acquireAppender().methodWriter(CommandQueueHandler.PongStatusHandler::class.java)
-//        val pingReader = tailer.methodReader(Echo.ReadPingWritePong(pongWriter))
 
         val name = javaClass.name
         val pongTailerThread = Thread {
@@ -181,25 +159,6 @@ class LatencyDistributionMain {
                 var counter = 0
                 while (!Thread.currentThread().isInterrupted) {
                     try {
-//                        var found: Boolean
-//                        tailer.readingDocument().use { dc ->
-//                            found = dc.isPresent
-//                            if (found) {
-//                                val count = counter++
-//                                if (count == EchoBenchmarkMain.WARMUP) {
-//                                    histogramCo.reset()
-//                                    histogramIn.reset()
-//                                    histogramWr.reset()
-//                                }
-//                                val bytes = dc.wire()!!.bytes()
-//                                val startCo = bytes.readLong()
-//                                val startIn = bytes.readLong()
-//                                val now = System.nanoTime()
-//                                histogramCo.sample((now - startCo).toDouble())
-//                                histogramIn.sample((now - startIn).toDouble())
-//                                if (count % INTLOG_INTERVAL == 0) println("read  $count")
-//                            }
-//                        }
                         if(pongReader.readOne()) {
                             val count = counter++
                             if (count == EchoBenchmarkMain.WARMUP) {
@@ -273,20 +232,11 @@ class LatencyDistributionMain {
                     }
 
                     val start = System.nanoTime()
-//                    pingAppender.writingDocument(false).use { dc ->
-//                        val wire = dc.wire()
-//                        val bytes2 = wire!!.bytes()
-//                        bytes2.writeLong(next) // when it should have started
-//                        bytes2.writeLong(start) // when it actually started.
-//                        bytes2.write(bytes24)
-//                        ThroughputMain.addToEndOfCache(wire)
-//                    }
                     ping.traceId = next
                     ping.commandId = start
                     pingWriter.ping(ping)
                     val time = System.nanoTime() - start
                     histogramWr.sample((start - next).toDouble())
-//                    histogramWr.sample((start - next).toDouble())
 
                     next += interval
                     if (i % INTLOG_INTERVAL == 0) println("wrote $i")
@@ -307,9 +257,6 @@ class LatencyDistributionMain {
 
         pingAppenderThread.start()
         pingAppenderThread.join()
-
-//        pretoucher.interrupt()
-//        pretoucher.join()
 
         //Pause to allow tailer to catch up (if needed)
         Jvm.pause(500)

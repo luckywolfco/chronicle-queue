@@ -231,14 +231,6 @@ class BinaryLatencyDistributionMain {
                     }
 
                     val start = System.nanoTime()
-//                    pingAppender.writingDocument(false).use { dc ->
-//                        val wire = dc.wire()
-//                        val bytes2 = wire!!.bytes()
-//                        bytes2.writeLong(next) // when it should have started
-//                        bytes2.writeLong(start) // when it actually started.
-//                        bytes2.write(bytes24)
-//                        ThroughputMain.addToEndOfCache(wire)
-//                    }
                     ping.traceId = next
                     ping.commandId = start
                     pingWriter.ping(ping)
@@ -263,9 +255,6 @@ class BinaryLatencyDistributionMain {
 
         pingAppenderThread.start()
         pingAppenderThread.join()
-
-//        pretoucher.interrupt()
-//        pretoucher.join()
 
         //Pause to allow tailer to catch up (if needed)
         Jvm.pause(500)
