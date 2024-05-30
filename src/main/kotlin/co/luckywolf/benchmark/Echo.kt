@@ -35,4 +35,39 @@ object Echo {
             histogramIn.sample((now - startIn).toDouble())
         }
     }
+
+
+    val pongBinary = PongBinary(Service.GATEWAY)
+    class ReadPingBinary() : CommandQueueHandler.PingBinaryStatusHandler {
+        override fun ping(ping: PingBinary) {
+            pongBinary.traceId = ping.traceId
+            pongBinary.origin = ping.origin
+            pongBinary.service = ping.service
+            pongBinary.commandId = System.nanoTime()
+        }
+    }
+
+    class ReadPingWritePongBinary(val pongStatusHandler: CommandQueueHandler.PongBinaryStatusHandler) : CommandQueueHandler.PingBinaryStatusHandler {
+        override fun ping(ping: PingBinary) {
+            pongBinary.traceId = ping.traceId
+            pongBinary.origin = ping.origin
+            pongBinary.service = ping.service
+            pongBinary.commandId = System.nanoTime()
+            pongStatusHandler.onPong(pongBinary)
+        }
+    }
+
+    class ReadPongBinary(val histogramCo: Histogram,
+                   val histogramIn: Histogram,
+    ) : CommandQueueHandler.PongBinaryStatusHandler {
+
+        override fun onPong(pong: PongBinary) {
+            val startCo = pong.traceId //bytes.readLong() // when it should have started
+            val startIn = pong.commandId //bytes.readLong() // when it actually started
+            val now = System.nanoTime()
+            histogramCo.sample((now - startCo).toDouble())
+            histogramIn.sample((now - startIn).toDouble())
+        }
+    }
+
 }

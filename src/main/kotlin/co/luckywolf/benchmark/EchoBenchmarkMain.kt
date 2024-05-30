@@ -72,6 +72,9 @@ class EchoBenchmarkMain {
         fun main(args: Array<String>) {
             ThroughputMain.main(args)
             LatencyDistributionMain.main(args)
+            println("Running binary version -----------")
+            BinaryThroughputMain.main(args)
+            BinaryLatencyDistributionMain.main(args)
         }
     }
 }
