@@ -36,7 +36,6 @@ object Echo {
         }
     }
 
-
     val pongBinary = PongBinary(Service.GATEWAY)
     class ReadPingBinary() : CommandQueueHandler.PingBinaryStatusHandler {
         override fun ping(ping: PingBinary) {

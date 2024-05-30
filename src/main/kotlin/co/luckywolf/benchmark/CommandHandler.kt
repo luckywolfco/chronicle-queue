@@ -11,6 +11,7 @@ import net.openhft.chronicle.wire.BytesInBinaryMarshallable
 import net.openhft.chronicle.wire.LongConversion
 import net.openhft.chronicle.wire.NanoTimestampLongConverter
 import net.openhft.chronicle.wire.SelfDescribingMarshallable
+import net.openhft.chronicle.wire.converter.NanoTime
 import java.nio.BufferOverflowException
 import java.nio.BufferUnderflowException
 
@@ -52,11 +53,11 @@ open class Command : SelfDescribingMarshallable() {
 }
 
 open class CommandBinary : BytesInBinaryMarshallable() {
-    @LongConversion(NanoTimestampLongConverter::class)
 //    @NanoTime
+//    @LongConversion(NanoTimestampLongConverter::class)
     var commandId: Long = 0
-    @LongConversion(NanoTimestampLongConverter::class)
 //    @NanoTime
+//    @LongConversion(NanoTimestampLongConverter::class)
     var traceId: Long = 0
     var version: Int = 1
     var origin = Service.UNDEFINED
