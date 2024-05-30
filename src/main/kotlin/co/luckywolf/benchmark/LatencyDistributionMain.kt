@@ -253,7 +253,7 @@ class LatencyDistributionMain {
         val pingAppenderThread = Thread {
             var lock: AffinityLock? = null
             try {
-                if (Jvm.getBoolean("enableAppenderAffinity") || !Jvm.getBoolean("disableAffinity")) {
+                    if (Jvm.getBoolean("enableAppenderAffinity") || !Jvm.getBoolean("disableAffinity")) {
                     lock = Affinity.acquireLock()
                 }
 

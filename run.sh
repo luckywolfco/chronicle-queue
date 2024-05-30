@@ -14,4 +14,6 @@ java --illegal-access=permit \
 --add-opens=java.base/java.util=ALL-UNNAMED \
 -Dthroughput=$throughtput \
 -Dinterations=$interations \
+-DenableTailerAffinity \
+-DenableAppenderAffinity \
 -jar target/benchmark-queue-1.jar
