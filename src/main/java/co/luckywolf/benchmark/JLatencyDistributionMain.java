@@ -154,15 +154,13 @@ public class JLatencyDistributionMain {
                 if (Jvm.getBoolean("enableAppenderAffinity") || !Jvm.getBoolean("disableAffinity")) {
                     lock = Affinity.acquireLock();
                 }
-
+                JPing ping = new JPing(Service.GATEWAY);
                 ExcerptAppender pingAppender = queue.createAppender();
                 JCommandQueueHandler.PongStatusHandler pongWriter = queue2.createAppender().methodWriter(JCommandQueueHandler.PongStatusHandler.class);
                 JCommandQueueHandler.PingStatusHandler pingWriter = pingAppender.methodWriter(JCommandQueueHandler.PingStatusHandler.class);
-
                 long next = System.nanoTime();
                 long interval = 1_000_000_000 / throughput;
                 Map<String, Integer> stackCount = new LinkedHashMap<>();
-                JPing ping = new JPing(Service.GATEWAY);
                 for (int i = -WARMUP; i < iterations; i++) {
                     long s0 = System.nanoTime();
                     if (s0 < next) {
@@ -173,8 +171,9 @@ public class JLatencyDistributionMain {
                     long start = System.nanoTime();
                     ping.traceId = next;
                     ping.commandId = start;
+//                    long time = System.nanoTime() - start;
                     pingWriter.ping(ping);
-                    histogramWr.sample((double)(start - next));
+                    histogramWr.sample(start - next);
 
                     next += interval;
                     if (i % INTLOG_INTERVAL == 0) System.out.println("wrote " + i);

@@ -2,9 +2,7 @@ package co.luckywolf.benchmark;
 
 import net.openhft.chronicle.core.util.Histogram;
 
-import static co.luckywolf.benchmark.JCommand.pong;
-
-class JReadPong implements JCommandQueueHandler.PingStatusHandler {
+class JReadPong implements JCommandQueueHandler.PongStatusHandler {
 
     public final Histogram histogramCo;
     public final Histogram histogramIn;
@@ -15,8 +13,9 @@ class JReadPong implements JCommandQueueHandler.PingStatusHandler {
         this.histogramIn = histogramIn;
     }
 
-    public void ping(JPing ping) {
-        long startCo = ping.traceId;
+    @Override
+    public void onPong(JPong pong) {
+        long startCo = pong.traceId;
         long startIn = pong.commandId;
         long now = System.nanoTime();
         histogramCo.sample((double)(now - startCo));
