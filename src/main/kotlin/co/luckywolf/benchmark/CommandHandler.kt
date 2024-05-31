@@ -34,6 +34,10 @@ object CommandQueueHandler {
         fun onPong(pong: PongBinary)
     }
 
+    interface MarketDataHandler {
+        fun onMarketData(marketData: MarketDepth)
+    }
+
 }
 
 open class Command : SelfDescribingMarshallable() {
@@ -96,7 +100,7 @@ open class CommandBinary : BytesInBinaryMarshallable() {
 }
 
 class Ping(var service: Service) : Command()
-class Pong(var service: Service, var pongStatus: PongStatus = PongStatus.UNDEFINED, var comment: String? = null) : Command()
+class Pong(var service: Service, var pongStatus: PongStatus = PongStatus.UNDEFINED/*, var comment: String? = null*/) : Command()
 
 class PingBinary(var service: Service) : CommandBinary() {
     override fun writeMarshallable(bytes: BytesOut<*>) {
@@ -109,19 +113,19 @@ class PingBinary(var service: Service) : CommandBinary() {
         service = Service.fromId(bytes.readInt())
     }
 }
-class PongBinary(var service: Service, var pongStatus: PongStatus = PongStatus.UNDEFINED, var comment: String? = null) : CommandBinary() {
+class PongBinary(var service: Service, var pongStatus: PongStatus = PongStatus.UNDEFINED/*, var comment: String? = null*/) : CommandBinary() {
     override fun writeMarshallable(bytes: BytesOut<*>) {
         super.writeMarshallable(bytes)
         bytes.writeInt(service.id)
         bytes.writeInt(pongStatus.id)
-        bytes.write(comment?:"")
+//        bytes.write(comment?:"")
     }
 
     override fun readMarshallable(bytes: BytesIn<*>) {
         super.readMarshallable(bytes)
         service = Service.fromId(bytes.readInt())
         pongStatus = PongStatus.fromId(bytes.readInt())
-        comment = bytes.readUtf8()
+//        comment = bytes.readUtf8()
     }
 }
 
