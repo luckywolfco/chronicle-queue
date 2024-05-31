@@ -73,9 +73,9 @@ class EchoBenchmarkMain {
 //            println("Running binary version -----------")
 //            BinaryThroughputMain.main(args)
 //            BinaryLatencyDistributionMain.main(args)
-//            println("Running marshaller version -----------")
+            println("Running marshaller version -----------")
             ThroughputMain.main(args)
-//            LatencyDistributionMain.main(args)
+            LatencyDistributionMain.main(args)
         }
     }
 }
