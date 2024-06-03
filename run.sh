@@ -1,7 +1,8 @@
 throughtput=$1
 interations=$2
+time=$3
 
-java --illegal-access=permit \
+java \
 --add-exports=java.base/jdk.internal.util=ALL-UNNAMED \
 --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED \
 --add-exports=java.base/sun.nio.ch=ALL-UNNAMED \
@@ -14,6 +15,7 @@ java --illegal-access=permit \
 --add-opens=java.base/java.util=ALL-UNNAMED \
 -Dthroughput=$throughtput \
 -Dinterations=$interations \
+-Dtime=$time \
 -DenableTailerAffinity \
 -DenableAppenderAffinity \
 -jar target/benchmark-queue-1.jar

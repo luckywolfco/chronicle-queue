@@ -70,10 +70,10 @@ class EchoBenchmarkMain {
         @Throws(InterruptedException::class)
         @JvmStatic
         fun main(args: Array<String>) {
-            println("Running binary version -----------")
-            BinaryThroughputMain.main(args)
-            BinaryLatencyDistributionMain.main(args)
-            println("Running marschallable version -----------")
+//            println("Running binary version -----------")
+//            BinaryThroughputMain.main(args)
+//            BinaryLatencyDistributionMain.main(args)
+            println("Running marshaller version -----------")
             ThroughputMain.main(args)
             LatencyDistributionMain.main(args)
         }

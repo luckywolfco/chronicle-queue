@@ -90,27 +90,4 @@ object ThroughputMain {
             IOTools.deleteDirWithFiles(base + i, 2)
         }
     }
-
-    fun addToEndOfCache(wire2: Wire?) {
-        val bytes = wire2!!.bytes()
-        val addr = bytes.addressForWrite(bytes.writePosition())
-        val pad = (64 - (addr and 63L)).toInt()
-        if (pad < 64) wire2.addPadding(pad)
-    }
-
-    private fun writeMessages(address: Long, canWrite: Long, writeCount: Int, nbs: BytesStore<*, *>): Long {
-        var address = address
-        var length: Long = 0
-        var count: Long = 0
-        val fromAddress = nbs.addressForRead(0)
-        val memory = UnsafeMemory.MEMORY
-        while (writeCount > count && length + 4 + EchoBenchmarkMain.size <= canWrite) {
-            UnsafeMemory.copyMemory(fromAddress, address + 4, EchoBenchmarkMain.size)
-            memory.writeOrderedInt(address, EchoBenchmarkMain.size)
-            address += (4 + EchoBenchmarkMain.size).toLong()
-            length += (4 + EchoBenchmarkMain.size).toLong()
-            count++
-        }
-        return (count shl 32) or length
-    }
 }
