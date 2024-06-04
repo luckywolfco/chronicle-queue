@@ -69,4 +69,58 @@ object Echo {
         }
     }
 
+    class ReadMarketData() : CommandQueueHandler.MarketDataHandler {
+        override fun onMarketData(marketData: MarketDepth) {
+            pong.traceId = marketData.traceId
+            pong.origin = marketData.service
+            pong.service = marketData.service
+            pong.commandId = System.nanoTime()
+        }
+    }
+
+    class ReadMarketDataSet() : CommandQueueHandler.MarketDataSetHandler {
+        override fun onMarketData(marketData: MarketDepthSet) {
+            pong.traceId = marketData.traceId
+            pong.origin = marketData.service
+            pong.service = marketData.service
+            pong.commandId = System.nanoTime()
+        }
+    }
+
+    class ReadArrayMarketData() : CommandQueueHandler.MarketDataArrayHandler {
+        override fun onMarketData(marketData: MarketDepthArray) {
+            pong.traceId = marketData.traceId
+            pong.origin = marketData.service
+            pong.service = marketData.service
+            pong.commandId = System.nanoTime()
+        }
+    }
+
+    class ReadBinaryMarketData() : CommandQueueHandler.MarketDataBinaryHandler {
+        override fun onMarketData(marketData: MarketDepthBinary) {
+            pong.traceId = marketData.traceId
+            pong.origin = marketData.service
+            pong.service = marketData.service
+            pong.commandId = System.nanoTime()
+        }
+    }
+
+    class ReadBinary2MarketData() : CommandQueueHandler.MarketDataBinary2Handler {
+        override fun onMarketData(marketData: MarketDepthBinary2) {
+            pong.traceId = marketData.traceId
+            pong.origin = marketData.service
+            pong.service = marketData.service
+            pong.commandId = System.nanoTime()
+        }
+    }
+
+    class ReadItem() : CommandQueueHandler.MarketDataItemHandler {
+        override fun onItem(depthItem: Item) {
+            pong.traceId = depthItem.timestampNs
+            pong.commandId = System.nanoTime()
+        }
+    }
+
+
+
 }

@@ -10,18 +10,7 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.IntStream
 
 
-object MdThroughputMain {
-
-
-    val md = MarketDepth()
-
-    fun md(): MarketDepth {
-        md.instrument = Instrument.VALR_BTC_ZAR
-        md.service = Service.VALR_SOURCE_MARKET_DATA
-        Data.expectedAsks.take(10).forEach { md.asks[it.priceBigDecimal()] = it }
-        Data.expectedBids.take(10).forEach { md.bids[it.priceBigDecimal()] = it }
-        return md
-    }
+object DepthItemThroughputMain {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -52,13 +41,18 @@ object MdThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val appender = q.acquireAppender()
-                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataHandler::class.java)
+                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataItemHandler::class.java)
                     var lastIndex: Long = -1
-                    val md = md()
+//                    val depthItem = DepthItem("999999.12345678901234567890123456789012345678901", "111111.12345678901234567890123456789012345678901")
+                    val depthItem = Item()
+//                    depthItem.price = Price().price("999999.12345678901234567890123456789012345678901")
+//                    depthItem.qty = Qty().qty("111111.12345678901234567890123456789012345678901")
+                    depthItem.price = "999999.12345678901234567890123456789012345678901"//.toBigDecimal()
+                    depthItem.qty = "111111.12345678901234567890123456789012345678901"//.toBigDecimal()
                     do {
-                        md.traceId = System.nanoTime()
-                        md.commandId = md.traceId
-                        writer.onMarketData(md)
+                        depthItem.timestampNs = System.nanoTime()
+
+                        writer.onItem(depthItem)
                         count2++
                     } while (start + EchoBenchmarkMain.time * 1e9 > System.nanoTime())
                 }
@@ -74,7 +68,7 @@ object MdThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val tailer = q.createTailer()
-                    val pingReader = tailer.methodReader(Echo.ReadMarketData())
+                    val pingReader = tailer.methodReader(Echo.ReadItem())
                     while (pingReader.readOne()) {}
                 }
         }

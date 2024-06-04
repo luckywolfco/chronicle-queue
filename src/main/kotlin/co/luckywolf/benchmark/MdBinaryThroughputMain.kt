@@ -10,16 +10,25 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.IntStream
 
 
-object MdThroughputMain {
+object MdBinaryThroughputMain {
 
+    val md = MarketDepthBinary()
 
-    val md = MarketDepth()
-
-    fun md(): MarketDepth {
+    fun md(): MarketDepthBinary {
         md.instrument = Instrument.VALR_BTC_ZAR
         md.service = Service.VALR_SOURCE_MARKET_DATA
-        Data.expectedAsks.take(10).forEach { md.asks[it.priceBigDecimal()] = it }
-        Data.expectedBids.take(10).forEach { md.bids[it.priceBigDecimal()] = it }
+        md.asks = ArrayList(Data.expectedAsks.take(10).map { val i = Item()
+            i.qty = it.volume//volumeBigDecimal()
+            i.price = it.price//priceBigDecimal()
+            i
+        })
+        md.bids = ArrayList(Data.expectedBids.take(10).map { val i = Item()
+            i.qty = it.volume//volumeBigDecimal()
+            i.price = it.price//priceBigDecimal()
+            i
+        })
+//        expectedAsks.forEach { md.asks[it.priceBigDecimal()] = it }
+//        expectedBids.forEach { md.bids[it.priceBigDecimal()] = it }
         return md
     }
 
@@ -37,10 +46,9 @@ object MdThroughputMain {
         val start = System.nanoTime()
         val base = EchoBenchmarkMain.path + "/delete-" + Time.uniqueId() + ".me."
 
-        val blockSize = if (OS.is64Bit()
-        ) if (OS.isLinux()
-        ) 4L shl 30
-        else 1L shl 30
+        val blockSize = if (OS.is64Bit())
+            if (OS.isLinux()) 4L shl 30
+            else 1L shl 30
         else 256L shl 20
 
         val count = AtomicLong()
@@ -52,7 +60,7 @@ object MdThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val appender = q.acquireAppender()
-                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataHandler::class.java)
+                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataBinaryHandler::class.java)
                     var lastIndex: Long = -1
                     val md = md()
                     do {
@@ -74,7 +82,7 @@ object MdThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val tailer = q.createTailer()
-                    val pingReader = tailer.methodReader(Echo.ReadMarketData())
+                    val pingReader = tailer.methodReader(Echo.ReadBinaryMarketData())
                     while (pingReader.readOne()) {}
                 }
         }

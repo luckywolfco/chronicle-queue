@@ -10,16 +10,25 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.IntStream
 
 
-object MdThroughputMain {
+object MdTreeSetThroughputMain {
 
+    val md = MarketDepthSet()
 
-    val md = MarketDepth()
-
-    fun md(): MarketDepth {
+    fun md(): MarketDepthSet {
         md.instrument = Instrument.VALR_BTC_ZAR
         md.service = Service.VALR_SOURCE_MARKET_DATA
-        Data.expectedAsks.take(10).forEach { md.asks[it.priceBigDecimal()] = it }
-        Data.expectedBids.take(10).forEach { md.bids[it.priceBigDecimal()] = it }
+        Data.expectedAsks.forEach {
+            val item = BinaryDepthItem()
+            item.volume = it.volumeBigDecimal()
+            item.price = it.priceBigDecimal()
+            md.asks.add(item)
+        }
+        Data.expectedBids.forEach {
+            val item = BinaryDepthItem()
+            item.volume = it.volumeBigDecimal()
+            item.price = it.priceBigDecimal()
+            md.bids.add(item)
+        }
         return md
     }
 
@@ -52,7 +61,7 @@ object MdThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val appender = q.acquireAppender()
-                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataHandler::class.java)
+                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataSetHandler::class.java)
                     var lastIndex: Long = -1
                     val md = md()
                     do {
@@ -74,7 +83,7 @@ object MdThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val tailer = q.createTailer()
-                    val pingReader = tailer.methodReader(Echo.ReadMarketData())
+                    val pingReader = tailer.methodReader(Echo.ReadMarketDataSet())
                     while (pingReader.readOne()) {}
                 }
         }

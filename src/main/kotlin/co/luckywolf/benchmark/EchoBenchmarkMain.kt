@@ -73,9 +73,22 @@ class EchoBenchmarkMain {
 //            println("Running binary version -----------")
 //            BinaryThroughputMain.main(args)
 //            BinaryLatencyDistributionMain.main(args)
-            println("Running marshaller version -----------")
-            ThroughputMain.main(args)
-            LatencyDistributionMain.main(args)
+//            println("Running marshaller version -----------")
+//            ThroughputMain.main(args)
+//            LatencyDistributionMain.main(args)
+            println("Md TreeMap ----")
+            MdThroughputMain.main(args)
+            println("Md Array (capped at 10 levels) -----")
+            MdArrayThroughputMain.main(args)
+            println("Md Binary Array -----")
+            MdBinaryThroughputMain.main(args)
+            println("Md Binary individual fields-----")
+            MdBinary2ThroughputMain.main(args)
+
+            println("Md Tree set -----")
+            MdTreeSetThroughputMain.main(args)
+
+//            DepthItemThroughputMain.main(args)
         }
     }
 }

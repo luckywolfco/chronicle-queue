@@ -38,6 +38,26 @@ object CommandQueueHandler {
         fun onMarketData(marketData: MarketDepth)
     }
 
+    interface MarketDataSetHandler {
+        fun onMarketData(marketData: MarketDepthSet)
+    }
+
+    interface MarketDataArrayHandler {
+        fun onMarketData(marketData: MarketDepthArray)
+    }
+
+    interface MarketDataBinaryHandler {
+        fun onMarketData(marketData: MarketDepthBinary)
+    }
+
+    interface MarketDataBinary2Handler {
+        fun onMarketData(marketData: MarketDepthBinary2)
+    }
+
+    interface MarketDataItemHandler {
+        fun onItem(depthItem: Item)
+    }
+
 }
 
 open class Command : SelfDescribingMarshallable() {
