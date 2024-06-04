@@ -119,10 +119,53 @@ open class CommandBinary : BytesInBinaryMarshallable() {
 
 }
 
-class Ping(var service: Service) : Command()
-class Pong(var service: Service, var pongStatus: PongStatus = PongStatus.UNDEFINED/*, var comment: String? = null*/) : Command()
+class Ping(var service: Service) : SelfDescribingMarshallable()  {
+    @LongConversion(NanoTimestampLongConverter::class)
+//    @NanoTime
+    var commandId: Long = 0
+    @LongConversion(NanoTimestampLongConverter::class)
+//    @NanoTime
+    var traceId: Long = 0
+    var version: Int = 1
+    var origin = Service.UNDEFINED
 
-class PingBinary(var service: Service) : CommandBinary() {
+    init {
+        commandId = SystemTimeProvider.INSTANCE.currentTimeNanos()
+        traceId = commandId
+    }
+
+}//: Command()
+
+class Pong(var service: Service, var pongStatus: PongStatus = PongStatus.UNDEFINED, var comment: String? = null) : SelfDescribingMarshallable() {
+    @LongConversion(NanoTimestampLongConverter::class)
+//    @NanoTime
+    var commandId: Long = 0
+    @LongConversion(NanoTimestampLongConverter::class)
+//    @NanoTime
+    var traceId: Long = 0
+    var version: Int = 1
+    var origin = Service.UNDEFINED
+
+    init {
+        commandId = SystemTimeProvider.INSTANCE.currentTimeNanos()
+        traceId = commandId
+    }
+}//: Command()
+
+class PingBinary(var service: Service) : BytesInBinaryMarshallable() { //: CommandBinary() {
+
+    var commandId: Long = 0
+    //    @NanoTime
+//    @LongConversion(NanoTimestampLongConverter::class)
+    var traceId: Long = 0
+    var version: Int = 1
+    var origin = Service.UNDEFINED
+
+    init {
+        commandId = SystemTimeProvider.INSTANCE.currentTimeNanos()
+        traceId = commandId
+    }
+
     override fun writeMarshallable(bytes: BytesOut<*>) {
         super.writeMarshallable(bytes)
         bytes.writeInt(service.id)
@@ -133,19 +176,36 @@ class PingBinary(var service: Service) : CommandBinary() {
         service = Service.fromId(bytes.readInt())
     }
 }
-class PongBinary(var service: Service, var pongStatus: PongStatus = PongStatus.UNDEFINED/*, var comment: String? = null*/) : CommandBinary() {
+class PongBinary(
+    var service: Service,
+    var pongStatus: PongStatus = PongStatus.UNDEFINED,
+    var comment: String? = null
+) : BytesInBinaryMarshallable() { // : CommandBinary() {
+
+    var commandId: Long = 0
+    //    @NanoTime
+//    @LongConversion(NanoTimestampLongConverter::class)
+    var traceId: Long = 0
+    var version: Int = 1
+    var origin = Service.UNDEFINED
+
+    init {
+        commandId = SystemTimeProvider.INSTANCE.currentTimeNanos()
+        traceId = commandId
+    }
+
     override fun writeMarshallable(bytes: BytesOut<*>) {
         super.writeMarshallable(bytes)
         bytes.writeInt(service.id)
         bytes.writeInt(pongStatus.id)
-//        bytes.write(comment?:"")
+        bytes.write(comment?:"")
     }
 
     override fun readMarshallable(bytes: BytesIn<*>) {
         super.readMarshallable(bytes)
         service = Service.fromId(bytes.readInt())
         pongStatus = PongStatus.fromId(bytes.readInt())
-//        comment = bytes.readUtf8()
+        comment = bytes.readUtf8()
     }
 }
 
