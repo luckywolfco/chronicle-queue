@@ -52,14 +52,14 @@ public class JMarketDepthArray extends JCommand {
         wire.write("i").writeInt(instrument.getId());
         wire.write("s").writeInt(service.getId());
 
-        wire.write("a").sequence(asks, asks.size(), ::writeDepthItems);
-        wire.write("b").sequence(bids, bids.size(), ::writeDepthItems);
+        wire.write("a").sequence(asks, asks.size(), this::writeDepthItems);
+        wire.write("b").sequence(bids, bids.size(), this::writeDepthItems);
     }
 
 
     private void writeDepthItems(ArrayList<JStringDepthItem> depthItems, int size, ValueOut valueOut) {
         for (int i = 0; i < depthItems.size(); i++) {
-            valueOut.sequence(depthItems[i], ::writeItem);
+            valueOut.sequence(depthItems.get(i), this::writeItem);
         }
     }
 
@@ -76,17 +76,17 @@ public class JMarketDepthArray extends JCommand {
         setOrigin(Service.Companion.fromId(wire.read("o").readInt()));
         timestampNs = wire.read("t").readLong();
         instrument = Instrument.Companion.toInstrument(wire.read("i").readInt());
-        service = Service.Companion.fromId(wire.read("s").readInt())
+        service = Service.Companion.fromId(wire.read("s").readInt());
         asks.clear();
         bids.clear();
 
-        wire.read("a").sequence(asks, ::readDepthItems)
-        wire.read("b").sequence(bids, :: readDepthItems)
+        wire.read("a").sequence(asks, this::readDepthItems);
+        wire.read("b").sequence(bids, this::readDepthItems);
     }
 
     private void readDepthItems(ArrayList<JStringDepthItem> depthItems, ValueIn valueIn) {
         while (valueIn.hasNextSequenceItem()) {
-            valueIn.sequence(depthItems,::readItem)
+            valueIn.sequence(depthItems,this::readItem);
         }
     }
     private final StringBuilder sb = new StringBuilder();
