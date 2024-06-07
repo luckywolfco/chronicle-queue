@@ -14,9 +14,21 @@ public class JStringDepthItem extends SelfDescribingMarshallable {
     public String price = "0";
     public String volume = "0";
 
+    public JStringDepthItem() {
+
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
     public void setPrice(String price) {
         priceBigDecimal = null;
         this.price = price;
+    }
+
+    public String getVolume() {
+        return volume;
     }
 
     public void setVolume(String volume) {

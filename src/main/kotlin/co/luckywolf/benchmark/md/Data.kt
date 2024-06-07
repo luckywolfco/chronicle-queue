@@ -420,5 +420,4 @@ object Data {
             0.006336.toBigDecimal()
         )
     )
-
 }
