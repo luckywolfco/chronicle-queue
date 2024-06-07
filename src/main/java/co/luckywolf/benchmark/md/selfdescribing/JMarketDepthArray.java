@@ -42,6 +42,27 @@ public class JMarketDepthArray extends JCommand {
         instrument = Instrument.UNDEFINED;
     }
 
+    public ArrayList<JStringDepthItem> getAsks() {
+        return asks;
+    }
+    public ArrayList<JStringDepthItem> getBids() {
+        return bids;
+    }
+    public Service getService() {
+        return service;
+    }
+    public void setService(Service service) {
+        this.service = service;
+    }
+
+    public long getTimestampNs() {
+        return timestampNs;
+    }
+
+    public void setTimestampNs(long timestampNs) {
+        this.timestampNs = timestampNs;
+    }
+
     @Override
     public void writeMarshallable(@NotNull WireOut wire) throws InvalidMarshallableException {
         wire.write("ci").writeLong(getCommandId());
