@@ -79,15 +79,15 @@ class MDBenchmarkMain {
         fun main(args: Array<String>) {
             println("Md TreeMap ----")
             MdThroughputMain.main(args)
-            println("Md Array (capped at 10 levels) -----")
+            println("Md Array -----")
             MdArrayThroughputMain.main(args)
             println("Md Binary Array -----")
             MdBinaryThroughputMain.main(args)
             println("Md Binary individual fields-----")
             MdBinary2ThroughputMain.main(args)
 
-            println("Md Tree set -----")
-            MdTreeSetThroughputMain.main(args)
+//            println("Md Tree set -----")
+//            MdTreeSetThroughputMain.main(args)
 
 //            DepthItemThroughputMain.main(args)
         }

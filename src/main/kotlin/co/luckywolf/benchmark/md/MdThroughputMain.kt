@@ -22,8 +22,8 @@ object MdThroughputMain {
     fun md(): MarketDepth {
         md.instrument = Instrument.VALR_BTC_ZAR
         md.service = Service.VALR_SOURCE_MARKET_DATA
-        Data.expectedAsks.take(10).forEach { md.asks[it.priceBigDecimal()] = it }
-        Data.expectedBids.take(10).forEach { md.bids[it.priceBigDecimal()] = it }
+        Data.expectedAsks.forEach { md.asks[it.priceBigDecimal()] = it }
+        Data.expectedBids.forEach { md.bids[it.priceBigDecimal()] = it }
         return md
     }
 

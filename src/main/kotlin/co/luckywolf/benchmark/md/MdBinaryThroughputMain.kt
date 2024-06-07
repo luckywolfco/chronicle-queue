@@ -21,12 +21,12 @@ object MdBinaryThroughputMain {
     fun md(): MarketDepthBinary {
         md.instrument = Instrument.VALR_BTC_ZAR
         md.service = Service.VALR_SOURCE_MARKET_DATA
-        md.asks = ArrayList(Data.expectedAsks.take(10).map { val i = Item()
+        md.asks = ArrayList(Data.expectedAsks.map { val i = Item()
             i.qty = it.volume//volumeBigDecimal()
             i.price = it.price//priceBigDecimal()
             i
         })
-        md.bids = ArrayList(Data.expectedBids.take(10).map { val i = Item()
+        md.bids = ArrayList(Data.expectedBids.map { val i = Item()
             i.qty = it.volume//volumeBigDecimal()
             i.price = it.price//priceBigDecimal()
             i

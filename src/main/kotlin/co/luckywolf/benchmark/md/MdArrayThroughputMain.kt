@@ -21,8 +21,8 @@ object MdArrayThroughputMain {
     fun md(): MarketDepthArray {
         md.instrument = Instrument.VALR_BTC_ZAR
         md.service = Service.VALR_SOURCE_MARKET_DATA
-        md.asks = ArrayList(Data.expectedAsks.take(10))
-        md.bids = ArrayList(Data.expectedBids.take(10))
+        md.asks = ArrayList(Data.expectedAsks)
+        md.bids = ArrayList(Data.expectedBids)
 //        expectedAsks.forEach { md.asks[it.priceBigDecimal()] = it }
 //        expectedBids.forEach { md.bids[it.priceBigDecimal()] = it }
         return md
