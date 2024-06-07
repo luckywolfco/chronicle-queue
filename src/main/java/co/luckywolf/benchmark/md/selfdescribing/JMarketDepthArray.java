@@ -63,6 +63,14 @@ public class JMarketDepthArray extends JCommand {
         this.timestampNs = timestampNs;
     }
 
+    public Instrument getInstrument() {
+        return instrument;
+    }
+
+    public void setInstrument(Instrument instrument) {
+        this.instrument = instrument;
+    }
+
     @Override
     public void writeMarshallable(@NotNull WireOut wire) throws InvalidMarshallableException {
         wire.write("ci").writeLong(getCommandId());
