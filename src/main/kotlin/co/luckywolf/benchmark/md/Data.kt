@@ -1,4 +1,4 @@
-package co.luckywolf.benchmark
+package co.luckywolf.benchmark.md
 
 object Data {
 

@@ -1,4 +1,4 @@
-package co.luckywolf.benchmark
+package co.luckywolf.benchmark.md
 
 import co.luckywolf.benchmark.md.*
 import net.openhft.chronicle.core.Jvm
@@ -31,14 +31,16 @@ import net.openhft.chronicle.queue.BufferMode
  * in: 50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 99.9997/99.9999 - worst
  * was 0.34 / 0.42  0.44 / 0.78  2.1 / 5.2  7.0 / 9.5  12 / 68  176 / 500 - 34,600
  */
-class EchoBenchmarkMain {
+class MDBenchmarkMain {
+
 
     companion object {
-        init {
-            System.setProperty("disable.thread.safety", "true")
-            System.setProperty("jvm.resource.tracing", "false");
-            System.setProperty("check.thread.safety", "false");
-        }
+//        init {
+//            System.setProperty("disable.thread.safety", "true")
+//            System.setProperty("jvm.resource.tracing", "false");
+//            System.setProperty("check.thread.safety", "false");
+//        }
+
         val time: Int = Integer.getInteger("time", 5)
 
         val size: Int = Integer.getInteger("size", 60)
@@ -75,12 +77,19 @@ class EchoBenchmarkMain {
         @Throws(InterruptedException::class)
         @JvmStatic
         fun main(args: Array<String>) {
-            println("Running binary version -----------")
-            BinaryThroughputMain.main(args)
-            BinaryLatencyDistributionMain.main(args)
-            println("Running marshaller version -----------")
-            ThroughputMain.main(args)
-            LatencyDistributionMain.main(args)
+            println("Md TreeMap ----")
+            MdThroughputMain.main(args)
+            println("Md Array (capped at 10 levels) -----")
+            MdArrayThroughputMain.main(args)
+            println("Md Binary Array -----")
+            MdBinaryThroughputMain.main(args)
+            println("Md Binary individual fields-----")
+            MdBinary2ThroughputMain.main(args)
+
+            println("Md Tree set -----")
+            MdTreeSetThroughputMain.main(args)
+
+//            DepthItemThroughputMain.main(args)
         }
     }
 }

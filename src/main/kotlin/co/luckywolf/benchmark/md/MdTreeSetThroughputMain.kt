@@ -1,5 +1,9 @@
-package co.luckywolf.benchmark
+package co.luckywolf.benchmark.md
 
+import co.luckywolf.benchmark.CommandQueueHandler
+import co.luckywolf.benchmark.Echo
+import co.luckywolf.benchmark.EchoBenchmarkMain
+import co.luckywolf.benchmark.Service
 import net.openhft.chronicle.core.Jvm
 import net.openhft.chronicle.core.OS
 import net.openhft.chronicle.core.io.IOTools
@@ -10,17 +14,25 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.IntStream
 
 
-object MdArrayThroughputMain {
+object MdTreeSetThroughputMain {
 
-    val md = MarketDepthArray()
+    val md = MarketDepthSet()
 
-    fun md(): MarketDepthArray {
+    fun md(): MarketDepthSet {
         md.instrument = Instrument.VALR_BTC_ZAR
         md.service = Service.VALR_SOURCE_MARKET_DATA
-        md.asks = ArrayList(Data.expectedAsks.take(10))
-        md.bids = ArrayList(Data.expectedBids.take(10))
-//        expectedAsks.forEach { md.asks[it.priceBigDecimal()] = it }
-//        expectedBids.forEach { md.bids[it.priceBigDecimal()] = it }
+        Data.expectedAsks.forEach {
+            val item = BinaryDepthItem()
+            item.volume = it.volumeBigDecimal()
+            item.price = it.priceBigDecimal()
+            md.asks.add(item)
+        }
+        Data.expectedBids.forEach {
+            val item = BinaryDepthItem()
+            item.volume = it.volumeBigDecimal()
+            item.price = it.priceBigDecimal()
+            md.bids.add(item)
+        }
         return md
     }
 
@@ -38,9 +50,10 @@ object MdArrayThroughputMain {
         val start = System.nanoTime()
         val base = EchoBenchmarkMain.path + "/delete-" + Time.uniqueId() + ".me."
 
-        val blockSize = if (OS.is64Bit())
-            if (OS.isLinux()) 4L shl 30
-            else 1L shl 30
+        val blockSize = if (OS.is64Bit()
+        ) if (OS.isLinux()
+        ) 4L shl 30
+        else 1L shl 30
         else 256L shl 20
 
         val count = AtomicLong()
@@ -52,7 +65,7 @@ object MdArrayThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val appender = q.acquireAppender()
-                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataArrayHandler::class.java)
+                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataSetHandler::class.java)
                     var lastIndex: Long = -1
                     val md = md()
                     do {
@@ -74,7 +87,7 @@ object MdArrayThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val tailer = q.createTailer()
-                    val pingReader = tailer.methodReader(Echo.ReadArrayMarketData())
+                    val pingReader = tailer.methodReader(Echo.ReadMarketDataSet())
                     while (pingReader.readOne()) {}
                 }
         }

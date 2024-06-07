@@ -1,7 +1,6 @@
 package co.luckywolf.benchmark
 
-import co.luckywolf.benchmark.Service.Companion.serviceMap
-import co.luckywolf.benchmark.Service.UNDEFINED
+import co.luckywolf.benchmark.md.*
 import net.openhft.chronicle.bytes.BytesIn
 import net.openhft.chronicle.bytes.BytesOut
 import net.openhft.chronicle.bytes.util.BinaryLengthLength
@@ -11,7 +10,7 @@ import net.openhft.chronicle.wire.BytesInBinaryMarshallable
 import net.openhft.chronicle.wire.LongConversion
 import net.openhft.chronicle.wire.NanoTimestampLongConverter
 import net.openhft.chronicle.wire.SelfDescribingMarshallable
-import net.openhft.chronicle.wire.converter.NanoTime
+import org.agrona.collections.Int2ObjectHashMap
 import java.nio.BufferOverflowException
 import java.nio.BufferUnderflowException
 
@@ -216,7 +215,7 @@ enum class PongStatus(val id: Int) {
     WEBSOCKET_DISCONNECTED(2);
 
     companion object {
-        private val statusMap = values().map { it.id to it  }.toMap()
+        private val statusMap = values().map { it.id to it  }.toMap(Int2ObjectHashMap())
         fun fromId(id: Int): PongStatus {
             val status = statusMap[id]
             return status?: UNDEFINED
@@ -249,7 +248,7 @@ enum class Service(val id: Int) {
     ACCOUNT(21);
 
     companion object {
-        private val serviceMap = Service.values().map { it.id to it  }.toMap()
+        private val serviceMap = Service.values().map { it.id to it  }.toMap(Int2ObjectHashMap())
         fun fromId(id: Int): Service {
             val service = serviceMap[id]
             return service?:UNDEFINED

@@ -1,5 +1,8 @@
-package co.luckywolf.benchmark
+package co.luckywolf.benchmark.md
 
+import co.luckywolf.benchmark.Command
+import co.luckywolf.benchmark.CommandBinary
+import co.luckywolf.benchmark.Service
 import net.openhft.chronicle.bytes.Bytes
 import net.openhft.chronicle.bytes.BytesIn
 import net.openhft.chronicle.bytes.BytesOut
@@ -130,7 +133,7 @@ enum class Instrument(
 
         fun toInstrument(id: Int): Instrument {
             val instrument = exchangeIdMap[id]
-            return instrument?:UNDEFINED
+            return instrument?: UNDEFINED
         }
     }
 }
@@ -289,7 +292,6 @@ class Item : BytesInBinaryMarshallable() {
 //    var qty: Qty? = null
 //    var price:BigDecimal = BigDecimal.ZERO
 //    var qty:BigDecimal = BigDecimal.ZERO
-
     var price:String = ""
     var qty:String = ""
 
@@ -315,7 +317,6 @@ class Item : BytesInBinaryMarshallable() {
 //        bytes.writeBigDecimal(price)
         bytes.writeUtf8(qty)
         bytes.writeUtf8(price)
-
     }
 
     override fun binaryLengthLength(): BinaryLengthLength {
@@ -323,11 +324,12 @@ class Item : BytesInBinaryMarshallable() {
     }
 }
 
-val emptyTreeMap = TreeMap<BigDecimal,DepthItem>() //Collections.emptySortedMap<BigDecimal,DepthItem>()
+val emptyTreeMap = TreeMap<BigDecimal, DepthItem>() //Collections.emptySortedMap<BigDecimal,DepthItem>()
 class MarketDepth() : Command() {
 
     constructor(timestampNs: Long,
-                instrument: Instrument): this() {
+                instrument: Instrument
+    ): this() {
         this.timestampNs = timestampNs
         this.instrument = instrument
     }
@@ -345,7 +347,7 @@ class MarketDepth() : Command() {
         this.instrument = instrument
     }
 
-    var asks: TreeMap<BigDecimal,DepthItem> =
+    var asks: TreeMap<BigDecimal, DepthItem> =
         TreeMap()
     var bids: TreeMap<BigDecimal, DepthItem> =
         TreeMap(Collections.reverseOrder())
@@ -360,117 +362,63 @@ class MarketDepth() : Command() {
         instrument = Instrument.UNDEFINED
     }
 
-//    override fun writeMarshallable(wire: WireOut) {
-//        wire.bytes().writeLong(commandId)
-//        wire.bytes().writeLong(traceId)
-//        wire.bytes().writeInt(version)
-//        wire.bytes().writeInt(origin.id)
-//        wire.bytes().writeLong(timestampNs)
-//        wire.bytes().writeInt(instrument.id)
-//        wire.bytes().writeInt(service.id)
-//
-//        wire.write("a").sequence(asks, asks.size, ::writeDepthItems)
-//        wire.write("b").sequence(bids, bids.size, ::writeDepthItems)
-//    }
-//
-//    fun writeDepthItems(depthItems: TreeMap<BigDecimal, DepthItem>, size:Int, valueOut: ValueOut) {
-//        for (item in depthItems) {
-//            valueOut.sequence(item.value, ::writeItem)
-//        }
-//    }
-//
-//    fun writeItem(item: DepthItem, valueOut: ValueOut) {
-//        valueOut.wireOut().bytes().writeUtf8(item.price)
-//        valueOut.wireOut().bytes().writeUtf8(item.volume)
-//    }
-//
-//    override fun readMarshallable(wire: WireIn) {
-//        commandId = wire.bytes().readLong()
-//        traceId = wire.bytes().readLong()
-//        version = wire.bytes().readInt()
-//        origin = Service.fromId(wire.bytes().readInt())
-//        timestampNs = wire.bytes().readLong()
-//        instrument = Instrument.toInstrument(wire.bytes().readInt())
-//        service = Service.fromId(wire.bytes().readInt())
-//        asks.clear()
-//        bids.clear()
-//        wire.read("a").sequence(asks, ::readDepthItems)
-//        wire.read("b").sequence(bids, :: readDepthItems)
-//    }
-//
-//    private fun readDepthItems(depthItems: TreeMap<BigDecimal, DepthItem>, valueIn: ValueIn) {
-//        while (valueIn.hasNextSequenceItem()) {
-//            valueIn.sequence(depthItems, ::readItem)
-//        }
-//    }
-//
-//    private fun readItem(depthItems: TreeMap<BigDecimal, DepthItem>, valueIn: ValueIn) {
-//        val depthItem = DepthItem() // could maybe use the object pool
-//        depthItem.price = valueIn.wireIn().bytes().readUtf8()!!
-//        depthItem.volume = valueIn.wireIn().bytes().readUtf8()!!
-//        depthItems[depthItem.priceBigDecimal()] = depthItem
-//    }
+    override fun writeMarshallable(wire: WireOut) {
+        wire.write("ci").writeLong(commandId)
+        wire.write("ti").writeLong(traceId)
+        wire.write("v").writeInt(version)
+        wire.write("o").writeInt(origin.id)
+        wire.write("t").writeLong(timestampNs)
+        wire.write("i").writeInt(instrument.id)
+        wire.write("s").writeInt(service.id)
 
+        wire.write("a").sequence(asks, asks.size, ::writeDepthItems)
+        wire.write("b").sequence(bids, bids.size, ::writeDepthItems)
+    }
 
-//    override fun writeMarshallable(wire: WireOut) {
-//        wire.write("ci").writeLong(commandId)
-//        wire.write("ti").writeLong(traceId)
-//        wire.write("v").writeInt(version)
-//        wire.write("o").writeInt(origin.id)
-//        wire.write("t").writeLong(timestampNs)
-//        wire.write("i").writeInt(instrument.id)
-//        wire.write("s").writeInt(service.id)
-//
-//        wire.write("a").sequence(asks, asks.size, ::writeDepthItems)
-//        wire.write("b").sequence(bids, bids.size, ::writeDepthItems)
-//    }
-//
-//    fun writeDepthItems(depthItems: TreeMap<BigDecimal, DepthItem>, size:Int, valueOut: ValueOut) {
-//        for (item in depthItems) {
-//            valueOut.sequence(item.value, ::writeItem)
-//        }
-//    }
-//
-//    fun writeItem(item: DepthItem, valueOut: ValueOut) {
-//        valueOut.text(item.price)
-//        valueOut.text(item.volume)
-//    }
-//
-//    override fun readMarshallable(wire: WireIn) {
-//        commandId = wire.read("ci").readLong()
-//        traceId = wire.read("ti").readLong()
-//        version = wire.read("v").readInt()
-//        origin = Service.fromId(wire.read("o").readInt())
-//        timestampNs = wire.read("t").readLong()
-//        instrument = Instrument.toInstrument(wire.read("i").readInt())
-//        service = Service.fromId(wire.read("s").readInt())
-//        asks.clear()
-//        bids.clear()
-//        wire.read("a").sequence(asks, ::readDepthItems)
-//        wire.read("b").sequence(bids, :: readDepthItems)
-//    }
-//
-//    private fun readDepthItems(depthItems: TreeMap<BigDecimal, DepthItem>, valueIn: ValueIn) {
-//
-//        while (valueIn.hasNextSequenceItem()) {
-//            valueIn.sequence(depthItems, ::readItem)
-//        }
-//    }
-//
-//    private fun readItem(depthItems: TreeMap<BigDecimal, DepthItem>, valueIn: ValueIn) {
-//        val depthItem = DepthItem() // could maybe use the object pool
-//        depthItem.price = valueIn.text()!!
-//        depthItem.volume = valueIn.text()!!
-//        depthItems[depthItem.priceBigDecimal()] = depthItem
-//    }
+    fun writeDepthItems(depthItems: TreeMap<BigDecimal, DepthItem>, size:Int, valueOut: ValueOut) {
+        for (item in depthItems) {
+            valueOut.sequence(item.value, ::writeItem)
+        }
+    }
+
+    fun writeItem(item: DepthItem, valueOut: ValueOut) {
+        valueOut.text(item.price)
+        valueOut.text(item.volume)
+    }
+
+    override fun readMarshallable(wire: WireIn) {
+        commandId = wire.read("ci").readLong()
+        traceId = wire.read("ti").readLong()
+        version = wire.read("v").readInt()
+        origin = Service.fromId(wire.read("o").readInt())
+        timestampNs = wire.read("t").readLong()
+        instrument = Instrument.toInstrument(wire.read("i").readInt())
+        service = Service.fromId(wire.read("s").readInt())
+        asks.clear()
+        bids.clear()
+        wire.read("a").sequence(asks, ::readDepthItems)
+        wire.read("b").sequence(bids, :: readDepthItems)
+    }
+
+    private fun readDepthItems(depthItems: TreeMap<BigDecimal, DepthItem>, valueIn: ValueIn) {
+        while (valueIn.hasNextSequenceItem()) {
+            valueIn.sequence(depthItems, ::readItem)
+        }
+    }
+
+    private fun readItem(depthItems: TreeMap<BigDecimal, DepthItem>, valueIn: ValueIn) {
+        val depthItem = DepthItem() // could maybe use the object pool
+        depthItem.price = valueIn.text()!!
+        depthItem.volume = valueIn.text()!!
+        depthItems[depthItem.priceBigDecimal()] = depthItem
+    }
 }
-
-val emptyList = arrayListOf<DepthItem>()
 
 class MarketDepthArray() : Command() {
 
     constructor(timestampNs: Long,
-                instrument: Instrument): this() {
+                instrument: Instrument
+    ): this() {
         this.timestampNs = timestampNs
         this.instrument = instrument
     }
@@ -482,9 +430,6 @@ class MarketDepthArray() : Command() {
         this
         this.asks = asks
         this.bids = bids
-//        bids.forEach() {
-//            this.bids[it.key] = it.value
-//        }
         this.timestampNs = timestampNs
         this.instrument = instrument
     }
@@ -504,10 +449,6 @@ class MarketDepthArray() : Command() {
         instrument = Instrument.UNDEFINED
     }
 
-    fun items(side: Side): ArrayList<DepthItem> {
-        return if (side.isBuy()) bids else if (side.isSell()) asks else emptyList
-    }
-
     override fun writeMarshallable(wire: WireOut) {
         wire.write("ci").writeLong(commandId)
         wire.write("ti").writeLong(traceId)
@@ -516,23 +457,6 @@ class MarketDepthArray() : Command() {
         wire.write("t").writeLong(timestampNs)
         wire.write("i").writeInt(instrument.id)
         wire.write("s").writeInt(service.id)
-
-//        wire.write("a").list(asks)
-//        wire.write("b").list(bids)
-
-//        wire.write("as").writeInt(asks.size)
-//        for (i in 0 until asks.size) {
-//            val depthItem = asks[i]
-//            wire.write("ap").writeString(depthItem.price)
-//            wire.write("av").writeString(depthItem.volume)
-//        }
-//
-//        wire.write("bs").writeInt(bids.size)
-//        for (i in 0 until bids.size) {
-//            val depthItem = bids[i]
-//            wire.write("bp").writeString(depthItem.price)
-//            wire.write("bv").writeString(depthItem.volume)
-//        }
 
         wire.write("a").sequence(asks, asks.size, ::writeDepthItems)
         wire.write("b").sequence(bids, bids.size, ::writeDepthItems)
@@ -560,25 +484,6 @@ class MarketDepthArray() : Command() {
         asks.clear()
         bids.clear()
 
-//        asks = wire.read("a").list(DepthItem::class.java) as ArrayList<DepthItem>
-//        bids = wire.read("b").list(DepthItem::class.java) as ArrayList<DepthItem>
-
-//        val askSize = wire.read("as").readInt()
-//        for (i in 0 until askSize) {
-//            val depthItem = DepthItem()
-//            depthItem.price = wire.read("ap").readString()
-//            depthItem.volume = wire.read("av").readString()
-//            asks.add(depthItem)
-//        }
-//
-//        val bidsSize = wire.read("bs").readInt()
-//        for (i in 0 until bidsSize) {
-//            val depthItem = DepthItem()
-//            depthItem.price = wire.read("bp").readString()
-//            depthItem.volume = wire.read("bv").readString()
-//            bids.add(depthItem)
-//        }
-
         wire.read("a").sequence(asks, ::readDepthItems)
         wire.read("b").sequence(bids, :: readDepthItems)
     }
@@ -591,8 +496,8 @@ class MarketDepthArray() : Command() {
     val sb = StringBuilder()
     private fun readItem(depthItems: ArrayList<DepthItem>, valueIn: ValueIn) {
         val depthItem = DepthItem() // could maybe use the object pool
-        depthItem.price = valueIn.textTo(sb.clear()).toString()
-        depthItem.volume = valueIn.textTo(sb.clear()).toString()
+        depthItem.price = valueIn.textTo(sb).toString()
+        depthItem.volume = valueIn.textTo(sb).toString()
         depthItems.add(depthItem)
     }
 }
@@ -601,7 +506,8 @@ class MarketDepthArray() : Command() {
 class MarketDepthBinary() : CommandBinary() {
 
     constructor(timestampNs: Long,
-                instrument: Instrument): this() {
+                instrument: Instrument
+    ): this() {
         this.timestampNs = timestampNs
         this.instrument = instrument
     }
@@ -613,9 +519,6 @@ class MarketDepthBinary() : CommandBinary() {
         this
         this.asks = asks
         this.bids = bids
-//        bids.forEach() {
-//            this.bids[it.key] = it.value
-//        }
         this.timestampNs = timestampNs
         this.instrument = instrument
     }
@@ -706,7 +609,8 @@ class MarketDepthBinary() : CommandBinary() {
 class MarketDepthBinary2() : CommandBinary() {
 
     constructor(timestampNs: Long,
-                instrument: Instrument): this() {
+                instrument: Instrument
+    ): this() {
         this.timestampNs = timestampNs
         this.instrument = instrument
     }
@@ -1677,7 +1581,8 @@ val emptySet = TreeSet<BinaryDepthItem>() //Collections.emptySortedMap<BigDecima
 class MarketDepthSet() : Command() {
 
     constructor(timestampNs: Long,
-                instrument: Instrument): this() {
+                instrument: Instrument
+    ): this() {
         this.timestampNs = timestampNs
         this.instrument = instrument
     }

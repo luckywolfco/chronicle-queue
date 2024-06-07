@@ -1,5 +1,9 @@
-package co.luckywolf.benchmark
+package co.luckywolf.benchmark.md
 
+import co.luckywolf.benchmark.CommandQueueHandler
+import co.luckywolf.benchmark.Echo
+import co.luckywolf.benchmark.EchoBenchmarkMain
+import co.luckywolf.benchmark.Service
 import net.openhft.chronicle.core.Jvm
 import net.openhft.chronicle.core.OS
 import net.openhft.chronicle.core.io.IOTools
@@ -10,16 +14,17 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.IntStream
 
 
-object MdThroughputMain {
+object MdArrayThroughputMain {
 
+    val md = MarketDepthArray()
 
-    val md = MarketDepth()
-
-    fun md(): MarketDepth {
+    fun md(): MarketDepthArray {
         md.instrument = Instrument.VALR_BTC_ZAR
         md.service = Service.VALR_SOURCE_MARKET_DATA
-        Data.expectedAsks.take(10).forEach { md.asks[it.priceBigDecimal()] = it }
-        Data.expectedBids.take(10).forEach { md.bids[it.priceBigDecimal()] = it }
+        md.asks = ArrayList(Data.expectedAsks.take(10))
+        md.bids = ArrayList(Data.expectedBids.take(10))
+//        expectedAsks.forEach { md.asks[it.priceBigDecimal()] = it }
+//        expectedBids.forEach { md.bids[it.priceBigDecimal()] = it }
         return md
     }
 
@@ -37,10 +42,9 @@ object MdThroughputMain {
         val start = System.nanoTime()
         val base = EchoBenchmarkMain.path + "/delete-" + Time.uniqueId() + ".me."
 
-        val blockSize = if (OS.is64Bit()
-        ) if (OS.isLinux()
-        ) 4L shl 30
-        else 1L shl 30
+        val blockSize = if (OS.is64Bit())
+            if (OS.isLinux()) 4L shl 30
+            else 1L shl 30
         else 256L shl 20
 
         val count = AtomicLong()
@@ -52,7 +56,7 @@ object MdThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val appender = q.acquireAppender()
-                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataHandler::class.java)
+                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataArrayHandler::class.java)
                     var lastIndex: Long = -1
                     val md = md()
                     do {
@@ -74,7 +78,7 @@ object MdThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val tailer = q.createTailer()
-                    val pingReader = tailer.methodReader(Echo.ReadMarketData())
+                    val pingReader = tailer.methodReader(Echo.ReadArrayMarketData())
                     while (pingReader.readOne()) {}
                 }
         }

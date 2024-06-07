@@ -1,5 +1,6 @@
 package co.luckywolf.benchmark
 
+import co.luckywolf.benchmark.md.*
 import net.openhft.chronicle.core.util.Histogram
 
 object Echo {

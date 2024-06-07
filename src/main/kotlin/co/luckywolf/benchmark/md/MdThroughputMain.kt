@@ -1,5 +1,9 @@
-package co.luckywolf.benchmark
+package co.luckywolf.benchmark.md
 
+import co.luckywolf.benchmark.CommandQueueHandler
+import co.luckywolf.benchmark.Echo
+import co.luckywolf.benchmark.EchoBenchmarkMain
+import co.luckywolf.benchmark.Service
 import net.openhft.chronicle.core.Jvm
 import net.openhft.chronicle.core.OS
 import net.openhft.chronicle.core.io.IOTools
@@ -10,25 +14,16 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.IntStream
 
 
-object MdTreeSetThroughputMain {
+object MdThroughputMain {
 
-    val md = MarketDepthSet()
 
-    fun md(): MarketDepthSet {
+    val md = MarketDepth()
+
+    fun md(): MarketDepth {
         md.instrument = Instrument.VALR_BTC_ZAR
         md.service = Service.VALR_SOURCE_MARKET_DATA
-        Data.expectedAsks.forEach {
-            val item = BinaryDepthItem()
-            item.volume = it.volumeBigDecimal()
-            item.price = it.priceBigDecimal()
-            md.asks.add(item)
-        }
-        Data.expectedBids.forEach {
-            val item = BinaryDepthItem()
-            item.volume = it.volumeBigDecimal()
-            item.price = it.priceBigDecimal()
-            md.bids.add(item)
-        }
+        Data.expectedAsks.take(10).forEach { md.asks[it.priceBigDecimal()] = it }
+        Data.expectedBids.take(10).forEach { md.bids[it.priceBigDecimal()] = it }
         return md
     }
 
@@ -61,7 +56,7 @@ object MdTreeSetThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val appender = q.acquireAppender()
-                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataSetHandler::class.java)
+                    val writer = appender.methodWriter(CommandQueueHandler.MarketDataHandler::class.java)
                     var lastIndex: Long = -1
                     val md = md()
                     do {
@@ -83,7 +78,7 @@ object MdTreeSetThroughputMain {
                 .blockSize(blockSize)
                 .build().use { q ->
                     val tailer = q.createTailer()
-                    val pingReader = tailer.methodReader(Echo.ReadMarketDataSet())
+                    val pingReader = tailer.methodReader(Echo.ReadMarketData())
                     while (pingReader.readOne()) {}
                 }
         }
