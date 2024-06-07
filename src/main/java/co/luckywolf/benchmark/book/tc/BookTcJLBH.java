@@ -1,6 +1,6 @@
-package co.luckywolf.benchmark;
+package co.luckywolf.benchmark.book.tc;
 
-import co.luckywolf.benchmark.md.binarymarshable.JBinaryBigDecimalDepthItem;
+
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
@@ -11,11 +11,13 @@ import net.openhft.chronicle.jlbh.JLBHTask;
 import net.openhft.chronicle.wire.BinaryWire;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Random;
 
-public class EventLoopJLBH {
+public class BookTcJLBH {
 
-    static final int ITERATIONS = Integer.getInteger("iterations", 100_000);
-    static final int THROUGHPUT = Integer.getInteger("throughput", 100_000);
+    static final int ITERATIONS = Integer.getInteger("iterations", 1_000_000);
+    static final int THROUGHPUT = Integer.getInteger("throughput", 200_000);
     static final String PATH = Jvm.getProperty("path", OS.getTarget() + "/data");
 
     /**
@@ -51,17 +53,24 @@ public class EventLoopJLBH {
     static class Task implements JLBHTask {
 
         private final BinaryWire wire;
-        private final JBinaryBigDecimalDepthItem source = new JBinaryBigDecimalDepthItem();
-        private final JBinaryBigDecimalDepthItem target = new JBinaryBigDecimalDepthItem();
+        private final BookTC source = new BookTC();
+        private final BookTC target = new BookTC();
         private JLBH jlbh;
 
 
         public Task() {
             Bytes bytes = Bytes.allocateElasticOnHeap();
             wire = new BinaryWire(bytes);
+            setupData(source);
+        }
 
-            source.volumeBigDecimal = new BigDecimal(100.0);
-            source.priceBigDecimal = new BigDecimal(100.0);
+        private void setupData(BookTC source1) {
+            source.instrument("EUR/USD");
+            for (int i = 0; i < 50; i++) {
+                source1.addAsk(generateRandomDouble(), generateRandomDouble());
+                source1.addBid(generateRandomDouble(), generateRandomDouble());
+            }
+
         }
 
         /**
@@ -82,13 +91,30 @@ public class EventLoopJLBH {
          */
         @Override
         public void run(long startTimeNS) {
+            long start = System.nanoTime();
             wire.clear();
             wire.write("data").object(source);
-            wire.read("data").object(target, JBinaryBigDecimalDepthItem.class);
-            System.out.println("target = " + target);
-            jlbh.sample(System.nanoTime() - startTimeNS);
+            wire.read("data").object(target, BookTC.class);
+            jlbh.sample(System.nanoTime() - start);
         }
+
+        public static double generateRandomDouble() {
+            // Create an instance of Random
+            Random random = new Random();
+
+            // Generate a random double between 0 and 100,000
+            double randomDouble = 0 + (10000 * random.nextDouble());
+
+            // Round the double to up to 5 decimal places
+            BigDecimal bd = new BigDecimal(Double.toString(randomDouble));
+            bd = bd.setScale(5, RoundingMode.HALF_UP);
+
+            // Return the rounded double as a primitive type
+            return bd.doubleValue();
+        }
+
     }
+
 
 }
 
