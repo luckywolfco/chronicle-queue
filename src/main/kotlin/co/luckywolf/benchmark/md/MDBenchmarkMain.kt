@@ -80,9 +80,9 @@ class MDBenchmarkMain {
             println("Md TreeMap ----")
             MdThroughputMain.main(args)
             println("Md Array -----")
-            MdArrayThroughputMain.main(args)
+            MdArrayThroughputMain.main(args) // self describing
             println("Md Binary Array -----")
-            MdBinaryThroughputMain.main(args)
+            MdBinaryThroughputMain.main(args) // array list
             println("Md Binary individual fields-----")
             MdBinary2ThroughputMain.main(args)
 

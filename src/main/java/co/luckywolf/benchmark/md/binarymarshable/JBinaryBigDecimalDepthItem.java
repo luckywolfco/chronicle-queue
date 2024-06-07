@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 public class JBinaryBigDecimalDepthItem extends BytesInBinaryMarshallable {
     public long timestampNs = 0;
     public BigDecimal priceBigDecimal = null;
-    public BigDecimal volumeBigDecimal= null;
+    public BigDecimal volumeBigDecimal = null;
 
     public String price = "0";
     public String volume = "0";
@@ -25,7 +25,12 @@ public class JBinaryBigDecimalDepthItem extends BytesInBinaryMarshallable {
         this.volume = volume;
     }
 
-   public JBinaryBigDecimalDepthItem(BigDecimal price, BigDecimal volume) {
+    public JBinaryBigDecimalDepthItem() {
+
+
+    }
+
+    public JBinaryBigDecimalDepthItem(BigDecimal price, BigDecimal volume) {
         this.priceBigDecimal = price;
         this.volumeBigDecimal = volume;
     }
@@ -57,7 +62,7 @@ public class JBinaryBigDecimalDepthItem extends BytesInBinaryMarshallable {
     }
 
     @Override
-    public void readMarshallable(BytesIn<?> bytes)  {
+    public void readMarshallable(BytesIn<?> bytes) {
         timestampNs = bytes.readLong();
         volumeBigDecimal = bytes.readBigDecimal();
         priceBigDecimal = bytes.readBigDecimal();
@@ -65,6 +70,6 @@ public class JBinaryBigDecimalDepthItem extends BytesInBinaryMarshallable {
 
     @Override
     public BinaryLengthLength binaryLengthLength() {
-      return BinaryLengthLength.LENGTH_16BIT;
+        return BinaryLengthLength.LENGTH_16BIT;
     }
 }

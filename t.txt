@@ -8,8 +8,8 @@
   s: 4,
   a: [
     [
-      "26697.55",
-      "0.042655"
+
+      "0.042655" // number of DP is up to 24. - double 15 significant digits
     ],
     [
       "26852.51",
