@@ -1,12 +1,12 @@
-package co.luckywolf.benchmark.md;
+package co.luckywolf.benchmark.md.selfdescribing;
 
-import net.openhft.chronicle.bytes.BytesIn;
-import net.openhft.chronicle.bytes.BytesOut;
-import net.openhft.chronicle.wire.BytesInBinaryMarshallable;
+import net.openhft.chronicle.wire.SelfDescribingMarshallable;
+import net.openhft.chronicle.wire.WireIn;
+import net.openhft.chronicle.wire.WireOut;
 
 import java.math.BigDecimal;
 
-public class JBinaryDepthItem extends BytesInBinaryMarshallable {
+public class JStringDepthItem extends SelfDescribingMarshallable {
     public long timestampNs = 0;
     public BigDecimal priceBigDecimal = null;
     public BigDecimal volumeBigDecimal= null;
@@ -24,12 +24,12 @@ public class JBinaryDepthItem extends BytesInBinaryMarshallable {
         this.volume = volume;
     }
 
-   public JBinaryDepthItem(BigDecimal price, BigDecimal volume) {
+   public JStringDepthItem(BigDecimal price, BigDecimal volume) {
         this.priceBigDecimal = price;
         this.volumeBigDecimal = volume;
     }
 
-    public JBinaryDepthItem(String price, String volume) {
+    public JStringDepthItem(String price, String volume) {
         this.price = price;
         this.volume = volume;
     }
@@ -49,16 +49,16 @@ public class JBinaryDepthItem extends BytesInBinaryMarshallable {
     }
 
     @Override
-    public void writeMarshallable(BytesOut<?> bytes) {
-        bytes.writeLong(timestampNs);
-        bytes.writeBigDecimal(volumeBigDecimal);
-        bytes.writeBigDecimal(priceBigDecimal);
+    public void writeMarshallable(WireOut wire) {
+        wire.write("t").writeLong(timestampNs);
+        wire.write("p").writeString(price);
+        wire.write("v").writeString(volume);
     }
 
     @Override
-    public void readMarshallable(BytesIn<?> bytes)  {
-        timestampNs = bytes.readLong();
-        volumeBigDecimal = bytes.readBigDecimal();
-        priceBigDecimal = bytes.readBigDecimal();
+    public void readMarshallable(WireIn wire) {
+        timestampNs = wire.read("t").readLong();
+        price = wire.read("p").readString();
+        volume = wire.read("v").readString();
     }
 }

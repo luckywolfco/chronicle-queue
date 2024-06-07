@@ -1,16 +1,13 @@
-package co.luckywolf.benchmark.md;
+package co.luckywolf.benchmark.md.binarymarshable;
 
+import net.openhft.chronicle.bytes.BytesIn;
 import net.openhft.chronicle.bytes.BytesOut;
-import net.openhft.chronicle.core.io.InvalidMarshallableException;
-import net.openhft.chronicle.wire.SelfDescribingMarshallable;
-import net.openhft.chronicle.wire.WireIn;
-import net.openhft.chronicle.wire.WireOut;
+import net.openhft.chronicle.bytes.util.BinaryLengthLength;
+import net.openhft.chronicle.wire.BytesInBinaryMarshallable;
 
 import java.math.BigDecimal;
-import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 
-public class JDepthItem extends SelfDescribingMarshallable {
+public class JBinaryBigDecimalDepthItem extends BytesInBinaryMarshallable {
     public long timestampNs = 0;
     public BigDecimal priceBigDecimal = null;
     public BigDecimal volumeBigDecimal= null;
@@ -28,12 +25,12 @@ public class JDepthItem extends SelfDescribingMarshallable {
         this.volume = volume;
     }
 
-   public JDepthItem(BigDecimal price, BigDecimal volume) {
+   public JBinaryBigDecimalDepthItem(BigDecimal price, BigDecimal volume) {
         this.priceBigDecimal = price;
         this.volumeBigDecimal = volume;
     }
 
-    public JDepthItem(String price, String volume) {
+    public JBinaryBigDecimalDepthItem(String price, String volume) {
         this.price = price;
         this.volume = volume;
     }
@@ -53,16 +50,21 @@ public class JDepthItem extends SelfDescribingMarshallable {
     }
 
     @Override
-    public void writeMarshallable(WireOut wire) {
-        wire.write("t").writeLong(timestampNs);
-        wire.write("p").writeString(price);
-        wire.write("v").writeString(volume);
+    public void writeMarshallable(BytesOut<?> bytes) {
+        bytes.writeLong(timestampNs);
+        bytes.writeBigDecimal(volumeBigDecimal);
+        bytes.writeBigDecimal(priceBigDecimal);
     }
 
     @Override
-    public void readMarshallable(WireIn wire) {
-        timestampNs = wire.read("t").readLong();
-        price = wire.read("p").readString();
-        volume = wire.read("v").readString();
+    public void readMarshallable(BytesIn<?> bytes)  {
+        timestampNs = bytes.readLong();
+        volumeBigDecimal = bytes.readBigDecimal();
+        priceBigDecimal = bytes.readBigDecimal();
+    }
+
+    @Override
+    public BinaryLengthLength binaryLengthLength() {
+      return BinaryLengthLength.LENGTH_16BIT;
     }
 }
