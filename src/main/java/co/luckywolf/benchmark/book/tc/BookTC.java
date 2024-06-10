@@ -25,7 +25,6 @@ import static net.openhft.chronicle.core.UnsafeMemory.MEMORY;
  */
 public class BookTC implements BytesMarshallable, Marshallable {
 
-
     private static final int DESCRIPTION = lookup(BookTC.class).description();
     private static final int LENGTH, START;
     private static final long START_OF_BIDS_PRICE = fieldOffset(BookTC.class, "bidPrice0");
@@ -45,7 +44,7 @@ public class BookTC implements BytesMarshallable, Marshallable {
     private int version;
 
     // bid
-    public int bidCount = 0;
+    public int bidCount;
     private double bidPrice0, bidPrice1, bidPrice2, bidPrice3, bidPrice4, bidPrice5, bidPrice6, bidPrice7, bidPrice8, bidPrice9, bidPrice10, bidPrice11, bidPrice12, bidPrice13, bidPrice14, bidPrice15, bidPrice16, bidPrice17, bidPrice18, bidPrice19, bidPrice20, bidPrice21, bidPrice22, bidPrice23, bidPrice24, bidPrice25, bidPrice26, bidPrice27, bidPrice28, bidPrice29, bidPrice30, bidPrice31, bidPrice32, bidPrice33, bidPrice34, bidPrice35, bidPrice36, bidPrice37, bidPrice38, bidPrice39, bidPrice40, bidPrice41, bidPrice42, bidPrice43, bidPrice44, bidPrice45, bidPrice46, bidPrice47, bidPrice48, bidPrice49;
     private double bidVolume0, bidVolume1, bidVolume2, bidVolume3, bidVolume4, bidVolume5, bidVolume6, bidVolume7, bidVolume8, bidVolume9, bidVolume10, bidVolume11, bidVolume12, bidVolume13, bidVolume14, bidVolume15, bidVolume16, bidVolume17, bidVolume18, bidVolume19, bidVolume20, bidVolume21, bidVolume22, bidVolume23, bidVolume24, bidVolume25, bidVolume26, bidVolume27, bidVolume28, bidVolume29, bidVolume30, bidVolume31, bidVolume32, bidVolume33, bidVolume34, bidVolume35, bidVolume36, bidVolume37, bidVolume38, bidVolume39, bidVolume40, bidVolume41, bidVolume42, bidVolume43, bidVolume44, bidVolume45, bidVolume46, bidVolume47, bidVolume48, bidVolume49;
 
@@ -96,8 +95,10 @@ public class BookTC implements BytesMarshallable, Marshallable {
     }
 
     public void addAsk(double price, double volume) {
-        setDoubleAtOffsetIndex(askCount, price, START_OF_ASKS_PRICE);
-        setDoubleAtOffsetIndex(askCount, volume, START_OF_ASKS_VOLUME);
+        setAskPrice(askCount, price);
+        setAskVolume(askCount, volume);
+//        setDoubleAtOffsetIndex(askCount, price, START_OF_ASKS_PRICE);
+//        setDoubleAtOffsetIndex(askCount, volume, START_OF_ASKS_VOLUME);
         askCount++;
     }
 

@@ -70,7 +70,6 @@ public class BookTcJLBH {
                 source1.addAsk(generateRandomDouble(), generateRandomDouble());
                 source1.addBid(generateRandomDouble(), generateRandomDouble());
             }
-
         }
 
         /**
