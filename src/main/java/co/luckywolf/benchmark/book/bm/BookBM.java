@@ -1,5 +1,6 @@
-package co.luckywolf.benchmark.book.tc;
+package co.luckywolf.benchmark.book.bm;
 
+import co.luckywolf.benchmark.book.tc.Rung;
 import net.openhft.chronicle.bytes.BytesIn;
 import net.openhft.chronicle.bytes.BytesMarshallable;
 import net.openhft.chronicle.bytes.BytesOut;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -23,20 +25,20 @@ import static net.openhft.chronicle.core.UnsafeMemory.MEMORY;
 /**
  * This is sent every time there is a change on the book that can cause it to reevaluate
  */
-public class BookTC implements BytesMarshallable, Marshallable {
+public class BookBM implements BytesMarshallable, Marshallable {
 
-    private static final int DESCRIPTION = lookup(BookTC.class).description();
-    private static final int LENGTH, START;
-    private static final long START_OF_BIDS_PRICE = fieldOffset(BookTC.class, "bidPrice0");
-    private static final long START_OF_BIDS_VOLUME = fieldOffset(BookTC.class, "bidVolume0");
-    private static final long START_OF_ASKS_PRICE = fieldOffset(BookTC.class, "askPrice0");
-    private static final long START_OF_ASKS_VOLUME = fieldOffset(BookTC.class, "askVolume0");
-
-    static {
-        final int[] range = BytesUtil.triviallyCopyableRange(BookTC.class);
-        LENGTH = range[1] - range[0];
-        START = range[0];
-    }
+    private static final int DESCRIPTION = lookup(BookBM.class).description();
+//    private static final int LENGTH, START;
+//    private static final long START_OF_BIDS_PRICE = fieldOffset(BookBM.class, "bidPrice0");
+//    private static final long START_OF_BIDS_VOLUME = fieldOffset(BookBM.class, "bidVolume0");
+//    private static final long START_OF_ASKS_PRICE = fieldOffset(BookBM.class, "askPrice0");
+//    private static final long START_OF_ASKS_VOLUME = fieldOffset(BookBM.class, "askVolume0");
+//
+//    static {
+//        final int[] range = BytesUtil.triviallyCopyableRange(BookBM.class);
+//        LENGTH = range[1] - range[0];
+//        START = range[0];
+//    }
 
     @LongConversion(ShortTextLongConverter.class)
     private long instrument;
@@ -45,38 +47,28 @@ public class BookTC implements BytesMarshallable, Marshallable {
 
     // bid
     public int bidCount;
-    private double bidPrice0, bidPrice1, bidPrice2, bidPrice3, bidPrice4, bidPrice5, bidPrice6, bidPrice7, bidPrice8, bidPrice9, bidPrice10, bidPrice11, bidPrice12, bidPrice13, bidPrice14, bidPrice15, bidPrice16, bidPrice17, bidPrice18, bidPrice19, bidPrice20, bidPrice21, bidPrice22, bidPrice23, bidPrice24, bidPrice25, bidPrice26, bidPrice27, bidPrice28, bidPrice29, bidPrice30, bidPrice31, bidPrice32, bidPrice33, bidPrice34, bidPrice35, bidPrice36, bidPrice37, bidPrice38, bidPrice39, bidPrice40, bidPrice41, bidPrice42, bidPrice43, bidPrice44, bidPrice45, bidPrice46, bidPrice47, bidPrice48, bidPrice49;
-    private double bidVolume0, bidVolume1, bidVolume2, bidVolume3, bidVolume4, bidVolume5, bidVolume6, bidVolume7, bidVolume8, bidVolume9, bidVolume10, bidVolume11, bidVolume12, bidVolume13, bidVolume14, bidVolume15, bidVolume16, bidVolume17, bidVolume18, bidVolume19, bidVolume20, bidVolume21, bidVolume22, bidVolume23, bidVolume24, bidVolume25, bidVolume26, bidVolume27, bidVolume28, bidVolume29, bidVolume30, bidVolume31, bidVolume32, bidVolume33, bidVolume34, bidVolume35, bidVolume36, bidVolume37, bidVolume38, bidVolume39, bidVolume40, bidVolume41, bidVolume42, bidVolume43, bidVolume44, bidVolume45, bidVolume46, bidVolume47, bidVolume48, bidVolume49;
+    private double[] bidPrices = new double[50];
+    private double[] bidVolumes = new double[50];
 
     // ask
     private int askCount;
-    private double askPrice0, askPrice1, askPrice2, askPrice3, askPrice4, askPrice5, askPrice6, askPrice7, askPrice8, askPrice9, askPrice10, askPrice11, askPrice12, askPrice13, askPrice14, askPrice15, askPrice16, askPrice17, askPrice18, askPrice19, askPrice20, askPrice21, askPrice22, askPrice23, askPrice24, askPrice25, askPrice26, askPrice27, askPrice28, askPrice29, askPrice30, askPrice31, askPrice32, askPrice33, askPrice34, askPrice35, askPrice36, askPrice37, askPrice38, askPrice39, askPrice40, askPrice41, askPrice42, askPrice43, askPrice44, askPrice45, askPrice46, askPrice47, askPrice48, askPrice49;
-    private double askVolume0, askVolume1, askVolume2, askVolume3, askVolume4, askVolume5, askVolume6, askVolume7, askVolume8, askVolume9, askVolume10, askVolume11, askVolume12, askVolume13, askVolume14, askVolume15, askVolume16, askVolume17, askVolume18, askVolume19, askVolume20, askVolume21, askVolume22, askVolume23, askVolume24, askVolume25, askVolume26, askVolume27, askVolume28, askVolume29, askVolume30, askVolume31, askVolume32, askVolume33, askVolume34, askVolume35, askVolume36, askVolume37, askVolume38, askVolume39, askVolume40, askVolume41, askVolume42, askVolume43, askVolume44, askVolume45, askVolume46, askVolume47, askVolume48, askVolume49;
-
+    private double[] askPrices = new double[50];
+    private double[] askVolumes = new double[50];
 
     public double getBidPrice(int index) {
-        return getDoubleAtOffsetIndex(index, START_OF_BIDS_PRICE);
+        return bidPrices[index];
     }
 
     public double getBidVolume(int index) {
-        return getDoubleAtOffsetIndex(index, START_OF_BIDS_VOLUME);
+        return bidVolumes[index];
     }
 
     public double getAskPrice(int index) {
-        return getDoubleAtOffsetIndex(index, START_OF_ASKS_PRICE);
+        return askPrices[index];
     }
 
     public double getAskVolume(int index) {
-        return getDoubleAtOffsetIndex(index, START_OF_ASKS_VOLUME);
-    }
-
-    private double getDoubleAtOffsetIndex(int index, final long address) {
-        return MEMORY.readDouble(this, address + index * 8L);
-    }
-
-    private BookTC setDoubleAtOffsetIndex(int index, double Price, final long address) {
-        MEMORY.writeDouble(this, address + index * 8L, Price);
-        return this;
+        return askVolumes[index];
     }
 
     public CharSequence instrument() {
@@ -87,7 +79,11 @@ public class BookTC implements BytesMarshallable, Marshallable {
         this.instrument = ShortTextLongConverter.INSTANCE.parse(instrument);
     }
 
-    public BookTC addBid(double price, double volume) {
+    public BookBM addBid(double price, double volume) {
+        if(bidCount >= bidPrices.length) {
+            bidPrices = Arrays.copyOf(bidPrices, bidPrices.length * 2);
+            bidVolumes = Arrays.copyOf(bidVolumes, bidVolumes.length * 2);
+        }
         setBidPrice(bidCount, price);
         setBidVolume(bidCount, volume);
         bidCount++;
@@ -95,27 +91,33 @@ public class BookTC implements BytesMarshallable, Marshallable {
     }
 
     public void addAsk(double price, double volume) {
+        if(askCount >= askPrices.length) {
+            askPrices = Arrays.copyOf(askPrices, askPrices.length * 2);
+            askVolumes = Arrays.copyOf(askVolumes, askVolumes.length * 2);
+        }
         setAskPrice(askCount, price);
         setAskVolume(askCount, volume);
-//        setDoubleAtOffsetIndex(askCount, price, START_OF_ASKS_PRICE);
-//        setDoubleAtOffsetIndex(askCount, volume, START_OF_ASKS_VOLUME);
         askCount++;
     }
 
-    public BookTC setBidPrice(int index, double Price) {
-        return setDoubleAtOffsetIndex(index, Price, START_OF_BIDS_PRICE);
+    public BookBM setBidPrice(int index, double price) {
+        bidPrices[index] = price;
+        return this;
     }
 
-    public BookTC setBidVolume(int index, double volume) {
-        return setDoubleAtOffsetIndex(index, volume, START_OF_BIDS_VOLUME);
+    public BookBM setBidVolume(int index, double volume) {
+        bidVolumes[index] = volume;
+        return this;
     }
 
-    public BookTC setAskPrice(int index, double price) {
-        return setDoubleAtOffsetIndex(index, price, START_OF_ASKS_PRICE);
+    public BookBM setAskPrice(int index, double price) {
+        askPrices[index] = price;
+        return this;
     }
 
-    public BookTC setAskVolume(int index, double volume) {
-        return setDoubleAtOffsetIndex(index, volume, START_OF_ASKS_VOLUME);
+    public BookBM setAskVolume(int index, double volume) {
+        askVolumes[index] = volume;
+        return this;
     }
 
 
@@ -198,20 +200,23 @@ public class BookTC implements BytesMarshallable, Marshallable {
         return DESCRIPTION;
     }
 
-    protected int $start() {
-        return START;
-    }
-
-
-    protected int $length() {
-        return LENGTH;
-    }
-
     @Override
     public void readMarshallable(BytesIn<?> bytes) throws IORuntimeException, BufferUnderflowException, IllegalStateException {
         int description0 = bytes.readInt();
         if (description0 == this.$description()) {
-            bytes.unsafeReadObject(this, this.$start(), this.$length());
+            instrument = bytes.readLong();
+            version = bytes.readInt();
+            askCount = 0;
+            int askCount = bytes.readInt();
+            for (int i = 0; i < askCount; i++) {
+                addAsk(bytes.readDouble(), bytes.readDouble());
+            }
+            bidCount = 0;
+            int bidCount = bytes.readInt();
+            for (int i = 0; i < bidCount; i++) {
+                addBid(bytes.readDouble(), bytes.readDouble());
+            }
+//            bytes.unsafeReadObject(this, this.$start(), this.$length());
         } else {
             throw new InvalidMarshallableException("Description mismatch, expected " + this.$description() + ", was " + description0);
         }
@@ -220,7 +225,19 @@ public class BookTC implements BytesMarshallable, Marshallable {
     @Override
     public void writeMarshallable(BytesOut<?> bytes) throws IllegalStateException, BufferOverflowException, BufferUnderflowException, ArithmeticException {
         bytes.writeInt(this.$description());
-        bytes.unsafeWriteObject(this, this.$start(), this.$length());
+        bytes.writeLong(instrument);
+        bytes.writeInt(version);
+        bytes.writeInt(askCount);
+        for (int i = 0; i < askCount; i++) {
+            bytes.writeDouble(askPrices[i]);
+            bytes.writeDouble(askVolumes[i]);
+        }
+        bytes.writeInt(bidCount);
+        for (int i = 0; i < bidCount; i++) {
+            bytes.writeDouble(bidPrices[i]);
+            bytes.writeDouble(bidVolumes[i]);
+        }
+//        bytes.unsafeWriteObject(this, this.$start(), this.$length());
     }
 
 
