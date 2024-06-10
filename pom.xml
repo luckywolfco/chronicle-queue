@@ -161,10 +161,17 @@
 
     <dependencyManagement>
         <dependencies>
+<!--            <dependency>-->
+<!--                <groupId>net.openhft</groupId>-->
+<!--                <artifactId>chronicle-bom</artifactId>-->
+<!--                <version>2.26ea-SNAPSHOT</version>-->
+<!--                <type>pom</type>-->
+<!--                <scope>import</scope>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
-                <version>2.26ea-SNAPSHOT</version>
+                <version>2.26ea7</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -184,6 +191,7 @@
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>jlbh</artifactId>
+<!--            <version>1.26ea0</version>-->
         </dependency>
 
         <dependency>
