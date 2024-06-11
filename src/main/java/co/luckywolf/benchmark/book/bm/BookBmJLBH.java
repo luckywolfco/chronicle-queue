@@ -27,7 +27,7 @@ public class BookBmJLBH {
      * @param args Command line arguments (not used).
      */
     public static void main(String[] args) {
-
+        System.out.println("Running " + BookBmJLBH.class.getName() + " ...");
         IOTools.deleteDirWithFiles(PATH);
         System.out.println("-Diterations=" + ITERATIONS + ", " +
                 "-Dthroughput=" + THROUGHPUT + ", " +

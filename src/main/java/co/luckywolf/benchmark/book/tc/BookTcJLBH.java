@@ -1,6 +1,7 @@
 package co.luckywolf.benchmark.book.tc;
 
 
+import co.luckywolf.benchmark.book.bm.BookBmJLBH;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
@@ -27,7 +28,7 @@ public class BookTcJLBH {
      * @param args Command line arguments (not used).
      */
     public static void main(String[] args) {
-
+        System.out.println("Running " + BookTcJLBH.class.getName() + " ...");
         IOTools.deleteDirWithFiles(PATH);
         System.out.println("-Diterations=" + ITERATIONS + ", " +
                 "-Dthroughput=" + THROUGHPUT + ", " +
