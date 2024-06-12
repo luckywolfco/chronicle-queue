@@ -42,6 +42,8 @@ public class BookBM implements BytesMarshallable, Marshallable {
 
     @LongConversion(ShortTextLongConverter.class)
     private long instrument;
+    @LongConversion(NanoTimestampLongConverter.class)
+    private long timeStampNs;
 
     private int version;
 
@@ -69,6 +71,14 @@ public class BookBM implements BytesMarshallable, Marshallable {
 
     public double getAskVolume(int index) {
         return askVolumes[index];
+    }
+
+    public long getTimeStampNs() {
+        return timeStampNs;
+    }
+
+    public void setTimeStampNs(long timeStampNs) {
+        this.timeStampNs = timeStampNs;
     }
 
     public CharSequence instrument() {
@@ -140,6 +150,7 @@ public class BookBM implements BytesMarshallable, Marshallable {
     @Override
     public void writeMarshallable(@NotNull WireOut wire) throws InvalidMarshallableException {
         wire.write("instrument").text(ShortTextLongConverter.INSTANCE.asText(instrument));
+        wire.write("timeStampNs").text(NanoTimestampLongConverter.INSTANCE.asText(timeStampNs));
         wire.write("bidCount").int32(bidCount);
         wire.write("askCount").int32(askCount);
         wire.write("bids").list(addBidRungs(bidCount), Rung.class);
@@ -152,7 +163,8 @@ public class BookBM implements BytesMarshallable, Marshallable {
         StringBuilder sb = new StringBuilder();
         wire.read("instrument").text(sb);
         instrument = ShortTextLongConverter.INSTANCE.parse(sb);
-
+        wire.read("timeStampNs").text(sb);
+        timeStampNs = NanoTimestampLongConverter.INSTANCE.parse(sb);
         bidCount = wire.read("bidCount").int32();
         askCount = wire.read("askCount").int32();
         bidCount = readRungs(wire, "bid", this::setAllBidRungs);
@@ -165,9 +177,9 @@ public class BookBM implements BytesMarshallable, Marshallable {
             setAskPrice(i, rung.price()).setAskVolume(i, rung.volume());
             i++;
         }
-        for (; i <= 9; i++) {
-            setAskPrice(i, NaN).setAskVolume(i, 0);
-        }
+//        for (; i <= 9; i++) {
+//            setAskPrice(i, NaN).setAskVolume(i, 0);
+//        }
     }
 
     private void setAllBidRungs(Iterable<Rung> rungs) {
@@ -176,9 +188,9 @@ public class BookBM implements BytesMarshallable, Marshallable {
             setBidPrice(i, rung.price()).setBidVolume(i, rung.volume());
             i++;
         }
-        for (; i <= 9; i++) {
-            setBidPrice(i, NaN).setBidVolume(i, 0);
-        }
+//        for (; i <= 9; i++) {
+//            setBidPrice(i, NaN).setBidVolume(i, 0);
+//        }
     }
 
 
@@ -205,6 +217,7 @@ public class BookBM implements BytesMarshallable, Marshallable {
         int description0 = bytes.readInt();
         if (description0 == this.$description()) {
             instrument = bytes.readLong();
+            timeStampNs = bytes.readLong();
             version = bytes.readInt();
             askCount = 0;
             int askCount = bytes.readInt();
@@ -226,6 +239,7 @@ public class BookBM implements BytesMarshallable, Marshallable {
     public void writeMarshallable(BytesOut<?> bytes) throws IllegalStateException, BufferOverflowException, BufferUnderflowException, ArithmeticException {
         bytes.writeInt(this.$description());
         bytes.writeLong(instrument);
+        bytes.writeLong(timeStampNs);
         bytes.writeInt(version);
         bytes.writeInt(askCount);
         for (int i = 0; i < askCount; i++) {

@@ -41,6 +41,9 @@ public class BookTC implements BytesMarshallable, Marshallable {
     @LongConversion(ShortTextLongConverter.class)
     private long instrument;
 
+    @LongConversion(NanoTimestampLongConverter.class)
+    private long timeStampNs;
+
     private int version;
 
     // bid
@@ -85,6 +88,14 @@ public class BookTC implements BytesMarshallable, Marshallable {
 
     public void instrument(CharSequence instrument) {
         this.instrument = ShortTextLongConverter.INSTANCE.parse(instrument);
+    }
+
+    public long getTimeStampNs() {
+        return timeStampNs;
+    }
+
+    public void setTimeStampNs(long timeStampNs) {
+        this.timeStampNs = timeStampNs;
     }
 
     public BookTC addBid(double price, double volume) {
